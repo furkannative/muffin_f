@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap');
 
 /* Smooth scanning animation for analysis cards */
 @keyframes scanning-glow {
@@ -204,6 +205,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: auto !important;
+  }
+  html {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+    overflow: auto !important;
   }
 }
 

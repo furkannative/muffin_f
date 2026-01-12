@@ -1,10 +1,6 @@
-import { ProjectDetailPage } from "@/components/project-detail-page"
-import type { Metadata } from "next"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Project Detail - Cursor for Hiring",
-  description: "View and manage project applications",
-}
+import { ProjectDetailPage } from "@/components/project-detail-page"
 
 export default function ProjectDetail({ params }: { params: { id: string } }) {
   return <ProjectDetailPage projectId={params.id} />

@@ -1,9 +1,14 @@
-import { LoginForm } from "@/components/login-form"
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/5">
-      <LoginForm />
-    </div>
-  )
+  const router = useRouter()
+
+  useEffect(() => {
+    router.push("/register-new")
+  }, [router])
+
+  return null
 }

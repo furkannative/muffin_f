@@ -40,9 +40,67 @@ export function AISearchInterface({
   const [editingField, setEditingField] = useState<string | null>(null)
   const [tempValue, setTempValue] = useState("")
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     saveSearchPrompt(promptBuilder)
     setIsSearching(true)
+    
+    // Generate email content
+    const promptText = generatePromptText()
+    const emailBody = `Search Prompt Details:\n\n${promptText}\n\n` +
+      `Company Type: ${promptBuilder.companyType}\n` +
+      `Location: ${promptBuilder.location}\n` +
+      `Team Size: ${promptBuilder.teamSize}\n` +
+      `Role: ${promptBuilder.role}\n` +
+      `Experience: ${promptBuilder.experience}\n` +
+      `Skills: ${promptBuilder.skills.join(", ")}`
+    
+    // Format email content similar to previous format
+    const emailContent = `Yeni bir prompt gönderildi
+Kullanıcı: unknown@example.com
+
+Kullanıcı ID: anonymous
+
+Tarih: ${new Date().toLocaleString('tr-TR', { 
+  day: '2-digit', 
+  month: '2-digit', 
+  year: 'numeric', 
+  hour: '2-digit', 
+  minute: '2-digit', 
+  second: '2-digit' 
+})}
+
+Prompt İçeriği:
+${promptText}
+
+${emailBody}`
+    
+    // Send email via API route
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subject: 'New Prompt Submission from Muffin',
+          message: emailBody,
+          promptContent: promptText
+        })
+      })
+      
+      const result = await response.json()
+      if (result.success) {
+        console.log('Email sent successfully!', result.data)
+      } else {
+        console.error('Failed to send email:', result.message, result.error)
+        // Show user-friendly error
+        alert('Email gönderilemedi. Lütfen tekrar deneyin.')
+      }
+    } catch (error) {
+      console.error('Email send error:', error)
+      alert('Email gönderilirken bir hata oluştu.')
+    }
+    
     setTimeout(() => {
       window.location.href = "/analysis"
     }, 1000)

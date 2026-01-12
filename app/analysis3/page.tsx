@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Sparkles, Search, Clock, ChevronDown, CheckCircle, HelpCircle, TrendingUp, Users, Bookmark, Archive, Video, Target, DollarSign, Shield, Database, Building, TrendingDown, UserCircle, UserCheck, Network, Briefcase, Star, Award, Trophy, TrendingDown as TrendingDownIcon } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useSearch } from "@/lib/search-context"
 
 function FlowConnector() {
   return (
@@ -34,22 +35,114 @@ function FlowConnector() {
 }
 
 export default function Analysis3Page() {
+  const { searchPrompt } = useSearch()
   const [currentAnalyzing, setCurrentAnalyzing] = useState<string | null>(null)
   const [analysisComplete, setAnalysisComplete] = useState(false)
   const [isUsageOpen, setIsUsageOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('workspace')
-  const [currentMessage, setCurrentMessage] = useState("I will do multiple searches to find candidates matching Senior Product Designer")
+  
+  // Generate prompt text from search context
+  const generatePromptText = () => {
+    return `We are a ${searchPrompt.companyType} based in ${searchPrompt.location} with ${searchPrompt.teamSize}. We are hiring a ${searchPrompt.role} with ${searchPrompt.experience} experience who is skilled in ${searchPrompt.skills.join(", ")}.`
+  }
+  
+  const promptText = generatePromptText()
+  const [currentMessage, setCurrentMessage] = useState(`I will do multiple searches to find candidates matching ${searchPrompt.role}`)
+
+  // Generate responsibilities based on role and skills
+  const generateResponsibilities = () => {
+    const role = searchPrompt.role.toLowerCase()
+    const skills = searchPrompt.skills.map(s => s.toLowerCase())
+    
+    const responsibilities: string[] = []
+    
+    // Role-based responsibilities
+    if (role.includes('engineer') || role.includes('developer')) {
+      responsibilities.push(`Design and develop scalable solutions using ${searchPrompt.skills.slice(0, 2).join(' and ')}`)
+      responsibilities.push(`Build and maintain high-quality code following best practices and industry standards`)
+      responsibilities.push(`Collaborate with cross-functional teams to deliver innovative features`)
+    } else if (role.includes('designer')) {
+      responsibilities.push(`Create user-centered designs and prototypes using ${searchPrompt.skills.find(s => s.toLowerCase().includes('figma') || s.toLowerCase().includes('design')) || 'design tools'}`)
+      responsibilities.push(`Work closely with product and engineering teams to implement designs`)
+      responsibilities.push(`Conduct user research and usability testing to inform design decisions`)
+    } else if (role.includes('product') || role.includes('manager')) {
+      responsibilities.push(`Define product strategy and roadmap aligned with business objectives`)
+      responsibilities.push(`Collaborate with engineering, design, and stakeholders to deliver products`)
+      responsibilities.push(`Analyze user data and feedback to drive product improvements`)
+    } else {
+      responsibilities.push(`Execute key responsibilities for ${searchPrompt.role} role`)
+      responsibilities.push(`Collaborate with team members to achieve project goals`)
+      responsibilities.push(`Continuously improve processes and deliver high-quality results`)
+    }
+    
+    // Skills-based additional responsibilities
+    if (skills.some(s => s.includes('react') || s.includes('frontend'))) {
+      responsibilities.push(`Develop responsive and interactive user interfaces`)
+    }
+    if (skills.some(s => s.includes('node') || s.includes('backend'))) {
+      responsibilities.push(`Build robust APIs and backend services`)
+    }
+    if (skills.some(s => s.includes('data') || s.includes('analytics'))) {
+      responsibilities.push(`Analyze and process data to drive insights and decisions`)
+    }
+    
+    return responsibilities.slice(0, 6) // Max 6 responsibilities
+  }
+
+  // Generate key features based on role and skills
+  const generateKeyFeatures = () => {
+    const role = searchPrompt.role.toLowerCase()
+    const skills = searchPrompt.skills.map(s => s.toLowerCase())
+    const features: Array<{ title: string; description: string }> = []
+    
+    // Role-based features
+    if (role.includes('engineer') || role.includes('developer')) {
+      if (skills.some(s => s.includes('react') || s.includes('frontend'))) {
+        features.push({ title: "Frontend Development", description: `${searchPrompt.skills.find(s => s.toLowerCase().includes('react')) || 'Modern'} expertise` })
+      }
+      if (skills.some(s => s.includes('node') || s.includes('backend'))) {
+        features.push({ title: "Backend Development", description: "API and server-side expertise" })
+      }
+      features.push({ title: "Code Quality", description: "Best practices and clean code" })
+    } else if (role.includes('designer')) {
+      features.push({ title: "UI/UX Design", description: "User-centered design approach" })
+      features.push({ title: "Design Systems", description: "Consistent and scalable designs" })
+      features.push({ title: "Prototyping", description: "Interactive prototypes and testing" })
+    } else if (role.includes('product') || role.includes('manager')) {
+      features.push({ title: "Product Strategy", description: "Roadmap and planning expertise" })
+      features.push({ title: "Stakeholder Management", description: "Cross-functional collaboration" })
+      features.push({ title: "Data-Driven Decisions", description: "Analytics and insights" })
+    }
+    
+    // Skills-based features
+    if (skills.some(s => s.includes('cloud') || s.includes('aws') || s.includes('azure'))) {
+      features.push({ title: "Cloud Platforms", description: `${searchPrompt.skills.find(s => s.toLowerCase().includes('aws') || s.toLowerCase().includes('azure') || s.toLowerCase().includes('cloud')) || 'Cloud'} experience` })
+    }
+    if (skills.some(s => s.includes('data') || s.includes('sql'))) {
+      features.push({ title: "Data Management", description: "Database and analytics expertise" })
+    }
+    
+    // Fill remaining slots with generic features
+    while (features.length < 6) {
+      features.push({ 
+        title: `${searchPrompt.skills[features.length % searchPrompt.skills.length] || 'Technical'} Expertise`, 
+        description: "Professional proficiency" 
+      })
+    }
+    
+    return features.slice(0, 6) // Max 6 features
+  }
 
   // Get analysis message based on current step
   const getAnalysisMessage = (step: string | null) => {
     const messages: Record<string, string> = {
-      external: "Scanning external sources like LinkedIn, GitHub, and professional networks for Senior Product Designer candidates...",
+      external: `Scanning external sources like LinkedIn, GitHub, and professional networks for ${searchPrompt.role} candidates...`,
       internal: "Checking internal databases and previous applicants to identify potential matches...",
       people: "Analyzing candidate profiles and matching requirements. Found 4670 potential candidates so far...",
       competitors: "Researching competitor companies and market insights to understand hiring landscape...",
       matches: "Evaluating candidates and identifying the top 12 best matches based on skills, experience, and cultural fit..."
     }
-    return messages[step || ''] || "I will do multiple searches to find candidates matching Senior Product Designer"
+    return messages[step || ''] || `I will do multiple searches to find candidates matching ${searchPrompt.role}`
   }
 
   // Get stats for each analysis step
@@ -135,8 +228,14 @@ export default function Analysis3Page() {
               {/* Prompt bubble */}
               <div className="rounded-[16px] bg-background border border-border/60 p-4 shadow-sm w-full">
                 <div className="text-sm leading-6">
-                  Find senior product designers in Stockholm who have startup experience and…
-                  <button className="ml-1 text-primary hover:underline">see more</button>
+                  {promptText.length > 80 ? (
+                    <>
+                      {promptText.substring(0, 80)}…
+                      <button className="ml-1 text-primary hover:underline">see more</button>
+                    </>
+                  ) : (
+                    promptText
+                  )}
                 </div>
               </div>
 
@@ -873,7 +972,7 @@ export default function Analysis3Page() {
                   <div className="space-y-6">
                     <div>
                       <h1 className="text-3xl font-bold text-gray-900 mb-2">Ideal Candidate Profile</h1>
-                      <p className="text-sm text-gray-600 mb-6">Detailed requirements and qualifications for Data Engineer position</p>
+                      <p className="text-sm text-gray-600 mb-6">Detailed requirements and qualifications for {searchPrompt.role} position</p>
                     </div>
 
                     {/* Ideal Candidate Profile */}
@@ -884,18 +983,17 @@ export default function Analysis3Page() {
                       <CardContent className="p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Role Overview</h3>
                         <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                          We are an innovative data technology company based in London with 150+ employees. 
-                          We are hiring a Data Engineer with 4+ years of experience in big data processing, 
-                          ETL pipelines, cloud data platforms, and data infrastructure.
+                          We are a {searchPrompt.companyType} based in {searchPrompt.location} with {searchPrompt.teamSize}. 
+                          We are hiring a {searchPrompt.role} with {searchPrompt.experience} experience who is skilled in {searchPrompt.skills.join(", ")}.
                         </p>
                         <div className="grid grid-cols-2 gap-4 mt-4">
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Experience Required</p>
-                            <p className="text-sm font-medium text-gray-900">4+ years</p>
+                            <p className="text-sm font-medium text-gray-900">{searchPrompt.experience}</p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Location</p>
-                            <p className="text-sm font-medium text-gray-900">London, UK</p>
+                            <p className="text-sm font-medium text-gray-900">{searchPrompt.location}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -906,18 +1004,11 @@ export default function Analysis3Page() {
                       <CardContent className="p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Required Skills</h3>
                         <div className="flex flex-wrap gap-2">
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Python</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Apache Spark</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">SQL</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Kafka</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">AWS</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">GCP</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Azure</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">ETL/ELT Pipelines</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Data Warehousing</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Real-time Streaming</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Data Modeling</span>
-                          <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Distributed Computing</span>
+                          {searchPrompt.skills.map((skill, index) => (
+                            <span key={index} className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                              {skill}
+                            </span>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
@@ -927,30 +1018,12 @@ export default function Analysis3Page() {
                       <CardContent className="p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Responsibilities</h3>
                         <ul className="space-y-2">
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Design and implement scalable ETL/ELT pipelines for data processing</span>
-                          </li>
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Build and maintain data warehouses and data lakes on cloud platforms</span>
-                          </li>
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Develop real-time streaming solutions using Kafka and Spark</span>
-                          </li>
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Optimize data infrastructure for performance and cost efficiency</span>
-                          </li>
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Collaborate with data scientists and analysts on data requirements</span>
-                          </li>
-                          <li className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-blue-600 mt-1">•</span>
-                            <span>Ensure data quality, governance, and compliance standards</span>
-                          </li>
+                          {generateResponsibilities().map((responsibility, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                              <span className="text-blue-600 mt-1">•</span>
+                              <span>{responsibility}</span>
+                            </li>
+                          ))}
                         </ul>
                       </CardContent>
                     </Card>
@@ -960,30 +1033,12 @@ export default function Analysis3Page() {
                       <CardContent className="p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Big Data Processing</p>
-                            <p className="text-xs text-gray-600">ETL pipelines expertise</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Cloud Platforms</p>
-                            <p className="text-xs text-gray-600">AWS/GCP/Azure experience</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Real-time Streaming</p>
-                            <p className="text-xs text-gray-600">Kafka implementation</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Data Architecture</p>
-                            <p className="text-xs text-gray-600">Warehouse & lake design</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Python & Spark</p>
-                            <p className="text-xs text-gray-600">Development expertise</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-                            <p className="text-sm font-medium text-gray-900 mb-1">Data Infrastructure</p>
-                            <p className="text-xs text-gray-600">Automation & optimization</p>
-                          </div>
+                          {generateKeyFeatures().map((feature, index) => (
+                            <div key={index} className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                              <p className="text-sm font-medium text-gray-900 mb-1">{feature.title}</p>
+                              <p className="text-xs text-gray-600">{feature.description}</p>
+                            </div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>

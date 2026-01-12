@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, Bell, Calendar, MessageCircle, User, ChevronDown, Archive, Rocket, Bookmark, Video, Hash, ArrowUp, Paperclip, Plus, Users, X, ZoomIn, ZoomOut, Maximize, HelpCircle, Settings, TrendingUp, LogOut, Mail } from "lucide-react"
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import Image from "next/image"
 
 export default function Ex3Page() {
   const [companyType, setCompanyType] = useState("Tech")
@@ -78,9 +79,9 @@ export default function Ex3Page() {
   ]
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="relative" style={{ minHeight: '100vh' }}>
       {/* Background with nature image effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-200 via-green-100 to-yellow-100">
+      <div className="fixed inset-0 bg-gradient-to-br from-sky-200 via-green-100 to-yellow-100" style={{ zIndex: 0 }}>
         <div className="absolute inset-0 opacity-30" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5f3e5' fill-opacity='0.2'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }}></div>
@@ -89,14 +90,18 @@ export default function Ex3Page() {
       </div>
 
       {/* Top Section */}
-      <div className="relative z-10 pt-8 px-6">
+      <div className="relative pt-8 px-6" style={{ position: 'relative', zIndex: 1 }}>
         {/* Top Navigation */}
         <div className="flex items-center justify-between mb-12">
           {/* Left - Logo */}
           <div className="flex items-center">
-            <span className="text-3xl lowercase text-[#E0406A]" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', fontWeight: 400, letterSpacing: '0.05em' }}>
-              muffin
-            </span>
+            <Image
+              src="/catalyst.svg"
+              alt="Muffin Logo"
+              width={40}
+              height={40}
+              className="w-10 h-10"
+            />
           </div>
 
           {/* Right - Icons */}
@@ -403,7 +408,7 @@ export default function Ex3Page() {
                 </div>
                 
                 <Button 
-                  onClick={() => window.location.href = '/analysis1'}
+                  onClick={() => window.location.href = '/analysis3'}
                   size="sm" 
                   className="w-12 h-12 bg-gray-600 hover:bg-gray-700 rounded-full shadow-lg"
                 >
@@ -479,7 +484,7 @@ export default function Ex3Page() {
       </div>
 
       {/* Jobs Section */}
-      <div className="relative z-10 px-6 pb-8">
+      <div className="relative px-6 pb-8" style={{ position: 'relative', zIndex: 1 }}>
         <Card className="bg-white shadow-xl rounded-2xl border-0">
           <CardContent className="p-8">
             {/* Jobs Header */}

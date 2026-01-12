@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, memo } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -353,6 +354,7 @@ const PipelineStage = ({ stage, isLast, onClick }: { stage: { id: number; name: 
 }
 
 export function ProjectDetailPage({ projectId }: { projectId: string }) {
+  const router = useRouter()
   const projectConfig = projectConfigs[projectId] || projectConfigs["1"]
   const pipelineStages = projectConfig.pipelineStages
   
@@ -1177,15 +1179,13 @@ The Hiring Team`
                               variant="outline"
                               onClick={(e) => {
                             e.stopPropagation()
-                                if (showMuffinLabel) {
-                                  handleCandidateClick(candidateId)
-                                }
+                                router.push(`/candidate-detail/${projectId}/${candidateId}`)
                               }}
                             >
                               View
               </Button>
                           </td>
-                        </tr>
+                          </tr>
                         )
                       })}
                     </tbody>

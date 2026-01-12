@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${geistSans} ${geistMono} antialiased`}>
-      <body>
+    <html lang="en" className={`${geistSans} ${geistMono} antialiased`} style={{ margin: 0, padding: 0, height: '100%' }}>
+      <body style={{ margin: 0, padding: 0, height: '100%', overflow: 'auto' }}>
         <Suspense fallback={null}>
           <SearchProvider>{children}</SearchProvider>
         </Suspense>
