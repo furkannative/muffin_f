@@ -74,32 +74,8 @@ ${promptText}
 
 ${emailBody}`
     
-    // Send email via API route
-    try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subject: 'New Prompt Submission from Muffin',
-          message: emailBody,
-          promptContent: promptText
-        })
-      })
-      
-      const result = await response.json()
-      if (result.success) {
-        console.log('Email sent successfully!', result.data)
-      } else {
-        console.error('Failed to send email:', result.message, result.error)
-        // Show user-friendly error
-        alert('Email gönderilemedi. Lütfen tekrar deneyin.')
-      }
-    } catch (error) {
-      console.error('Email send error:', error)
-      alert('Email gönderilirken bir hata oluştu.')
-    }
+    // Email gönderme şimdilik devre dışı
+    // TODO: Email gönderme özelliği daha sonra aktif edilecek
     
     setTimeout(() => {
       window.location.href = "/analysis"

@@ -60,7 +60,7 @@ ${message && message !== promptContent ? `\n\nDetaylar:\n${message}` : ''}
       subject: subject || 'New Prompt Submission from Muffin',
       html: emailContent.replace(/\n/g, '<br>'),
       text: emailContent,
-      reply_to: 'noreply@muffin.com',
+      replyTo: 'noreply@muffin.com',
     })
 
     if (error) {
