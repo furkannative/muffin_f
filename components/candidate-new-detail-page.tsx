@@ -83,7 +83,10 @@ export function CandidateNewDetailPage({ candidateId }: CandidateNewDetailPagePr
   const [currentTab, setCurrentTab] = useState("summary")
   const [currentStage, setCurrentStage] = useState("applied")
 
-  const candidate = candidateData[candidateId as keyof typeof candidateData] || candidateData[1]
+  // Convert string candidateId to number for type safety
+  const numericCandidateId = Number(candidateId) || 1
+  
+  const candidate = candidateData[numericCandidateId as keyof typeof candidateData] ?? candidateData[1]
 
   const handleBack = () => {
     window.history.back()
