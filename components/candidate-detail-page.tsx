@@ -92,7 +92,10 @@ export function CandidateDetailPage({ candidateId }: CandidateDetailPageProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [currentTab, setCurrentTab] = useState("profile")
 
-  const candidate = candidateData[candidateId as keyof typeof candidateData] || candidateData[1]
+  // Convert string candidateId to number for type safety
+  const numericCandidateId = Number(candidateId) || 1
+  
+  const candidate = candidateData[numericCandidateId as keyof typeof candidateData] ?? candidateData[1]
 
   const handleBack = () => {
     window.history.back()
