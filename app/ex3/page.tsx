@@ -28,7 +28,7 @@ export default function Ex3Page() {
     interview: true,
     orgChart: false
   })
-  const [draggedPerson, setDraggedPerson] = useState(null)
+  const [draggedPerson, setDraggedPerson] = useState<{ name: string; role: string } | null>(null)
   const [showSimilarSearch, setShowSimilarSearch] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
